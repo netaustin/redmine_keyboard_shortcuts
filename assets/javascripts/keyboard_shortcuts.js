@@ -48,7 +48,6 @@ var KsDispatcher = Class.create({
     if (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA') return;
 
     var key_pressed = getDisplayKey(event);
-    console.log(key_pressed);
 
     // dispatch to shortcut manager
     this.ks_managers.each(function(ksm) {
