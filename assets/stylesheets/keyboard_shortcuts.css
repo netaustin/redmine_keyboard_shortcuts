@@ -4,6 +4,7 @@
 }
 
 .ks-selected .checkbox,
+#dialog ul.ks-list li:nth-child(even).selected,
 #dialog ul.ks-list li.selected {
   background: url(../images/item-selector.png) top left no-repeat;
 }
@@ -58,7 +59,6 @@
 }
 
 #dialog ul.ks-list {
-  border-top: solid 1px #efefef;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -71,7 +71,7 @@
 }
 
 #dialog ul.ks-list li:nth-child(even) {
-  border-bottom: solid 1px #efefef;
+  background: #efefef;
 }
 
 #dialog ul.ks-list li a.current {
