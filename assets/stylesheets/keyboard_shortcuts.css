@@ -69,6 +69,10 @@
   padding-left: 15px;
 }
 
+#dialog ul.ks-list li:even {
+  background: #ddd;
+}
+
 #dialog ul.ks-list li a.current {
   color: #000;
 }
