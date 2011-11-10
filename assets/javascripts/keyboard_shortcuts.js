@@ -47,7 +47,8 @@ var KsDispatcher = Class.create({
     if (element.nodeType==3) element = element.parentNode;
     if (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA') return;
 
-    var key_pressed = String.fromCharCode(event.keyCode);
+    var key_pressed = getDisplayKey(event);
+    console.log(key_pressed);
 
     // dispatch to shortcut manager
     this.ks_managers.each(function(ksm) {
@@ -568,3 +569,9 @@ var KsDialog = Class.create({
   }
 
 });
+
+var getDisplayKey = function(e) {
+  if (e.keyCode) keycode = e.keyCode;
+  else keycode = e.which;
+  return String.fromCharCode(keycode);
+}
