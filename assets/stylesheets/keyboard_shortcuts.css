@@ -70,7 +70,7 @@
 }
 
 #dialog ul.ks-list li:nth-child(even) {
-  background: #ddd;
+  background: #efefef;
 }
 
 #dialog ul.ks-list li a.current {
