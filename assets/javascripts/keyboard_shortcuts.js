@@ -45,7 +45,7 @@ var KsDispatcher = Class.create({
     if (event.target) element = event.target;
     else if (event.srcElement) element = event.srcElement;
     if (element.nodeType==3) element = element.parentNode;
-    if (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA') return;
+    if (element.tagName == 'INPUT' || element.tagName == 'TEXTAREA' || element.tagName == 'SELECT' || element.tagName == 'OPTION') return;
 
     var key_pressed = getDisplayKey(event);
 
