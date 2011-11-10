@@ -4,9 +4,12 @@
 }
 
 .ks-selected .checkbox,
-#dialog ul.ks-list li:nth-child(even).selected,
 #dialog ul.ks-list li.selected {
   background: url(../images/item-selector.png) top left no-repeat;
+}
+
+#dialog ul.ks-list li:nth-child(even).selected {
+  background: #efefef url(../images/item-selector.png) top left no-repeat;
 }
 
 #dialog-wrapper {
