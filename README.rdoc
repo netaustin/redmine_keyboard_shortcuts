@@ -8,6 +8,8 @@ Tested in Firefox and Chrome; IE support coming with a public release. Keyboard 
 
 This was developed by {Austin Smith}[http://www.netaustin.net], who is not much of a Rubyist, so the Redmine/Rails integration is fairly minimal thus far. I'll learn, but development will go faster if you help me, especially with things like permissions and server-side storage of active lists of issues.
 
+Thanks to Eric Davis, whose {Redmine Contracts}[https://github.com/edavis10/redmine_contracts/] plugin was a helpful example.
+
 == Installation
 
 Just check out this repository in the plugins directory of your Redmine installation. This plugin has no database schema as of yet.
