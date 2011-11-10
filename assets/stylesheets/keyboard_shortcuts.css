@@ -58,6 +58,7 @@
 }
 
 #dialog ul.ks-list {
+  border-top: solid 1px #efefef;
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -70,7 +71,7 @@
 }
 
 #dialog ul.ks-list li:nth-child(even) {
-  background: #efefef;
+  border-bottom: solid 1px #efefef;
 }
 
 #dialog ul.ks-list li a.current {
