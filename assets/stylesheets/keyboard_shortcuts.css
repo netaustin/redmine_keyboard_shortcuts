@@ -69,7 +69,7 @@
   padding-left: 15px;
 }
 
-#dialog ul.ks-list li:even {
+#dialog ul.ks-list li:nth-child(even) {
   background: #ddd;
 }
 
