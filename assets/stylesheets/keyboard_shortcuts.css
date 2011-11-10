@@ -1,5 +1,5 @@
-table.list tbody td.checkbox,
-table.list thead th.checkbox {
+.autoscroll table.list tbody tr td.checkbox,
+.autoscroll table.list thead tr th.checkbox {
   padding: 2px 2px 0 10px;
 }
 
