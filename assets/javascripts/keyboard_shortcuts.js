@@ -233,7 +233,7 @@ var KsListManager = Class.create({
   },
 
   selectIssueByRedmineId: function(rmid) {
-    if ('issue' + rmid) {
+    if ($('issue' + rmid)) {
       $('issue-' + rmid).down('.checkbox input').click();
     }
   },
