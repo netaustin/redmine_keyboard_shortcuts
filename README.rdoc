@@ -1,12 +1,12 @@
 = Redmine Keyboard Shortcuts
 
-Redmine Keyboard Shortcuts is a plugin for {Redmine}{http://www.redmine.org} which implements vim-style keyboard shortcuts to make navigation easier and project management less painful.
+Redmine Keyboard Shortcuts is a plugin for {Redmine}[http://www.redmine.org] which implements vim-style keyboard shortcuts to make navigation easier and project management less painful.
 
 Tested in Firefox and Chrome; IE support coming with a public release. Keyboard shortcuts may change between now and public release, breaking your workflow and causing you misery.
 
 == Help Welcomed
 
-This was developed by {Austin Smith}{http://www.netaustin.net}, who is not much of a Rubyist, so the Redmine/Rails integration is fairly minimal thus far. I'll learn, but development will go faster if you help me, especially with things like permissions and server-side storage of active lists of issues.
+This was developed by {Austin Smith}[http://www.netaustin.net], who is not much of a Rubyist, so the Redmine/Rails integration is fairly minimal thus far. I'll learn, but development will go faster if you help me, especially with things like permissions and server-side storage of active lists of issues.
 
 == Installation
 
@@ -21,9 +21,11 @@ Type 'h' in any screen to get an overview of keyboard shortcuts available on tha
 In rough order of priority:
 
 * Iron out some existing permissions or preference issues, e.g. in some cases we might be trying to press a button that does not exist.
+* Add inline documentation to keyboard_shortcuts.js
 * Build a test suite.
 * Apply permissions and preferences so the keyboard shortcuts don't confuse non-privileged or non-technical users.
 * Store the current queue of issues server-side rather than in a cookie.
+* Minify the JS; use the minified version in production, full version in development.
 * On issue pages in the list modal, show ten issues, and scroll up and down using 'j' and 'k', rather than showing every issue from the prior queue.
 * Create a registration function for ks_dispatcher to allow other plugins to implement keyboard shortcuts.
 * Add keyboard shortcuts for the list view to bulk assign, change projects, change version, or change status.
