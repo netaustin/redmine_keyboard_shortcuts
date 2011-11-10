@@ -1,0 +1,74 @@
+table.list tbody td.checkbox,
+table.list thead th.checkbox {
+  padding: 2px 2px 0 10px;
+}
+
+.ks-selected .checkbox,
+#dialog ul.ks-list li.selected {
+  background: url(../images/item-selector.png) top left no-repeat;
+}
+
+#dialog-wrapper {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  text-align:center;
+  z-index: 1000;
+}
+
+#dialog {
+  width: 300px;
+  margin: 200px auto;
+  background-color: #fff;
+  border: 3px solid #777;
+  text-align: center;
+}
+
+#dialog-body {
+  padding: 5px 15px;
+  overflow: scroll;
+}
+
+#dialog h3 {
+  border: none;
+  background-color: #ddd;
+  color: #000;
+  font-size: 13px;
+  padding: 5px 15px;
+  margin: 0;
+}
+
+#dialog h4 {
+  background: #fff;
+  color: #000;
+  text-align: left;
+  padding: 5px 0;
+  font-size: 13px;
+  border-bottom: 1px dotted #bbb;
+}
+
+#dialog table.ks-help td {
+  text-align: left;
+}
+
+#dialog table.ks-help td.key {
+  font-weight: bold;
+}
+
+#dialog ul.ks-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#dialog ul.ks-list li {
+  list-style-type: none;
+  text-align: left;
+  padding-left: 15px;
+}
+
+#dialog ul.ks-list li a.current {
+  color: #000;
+}
