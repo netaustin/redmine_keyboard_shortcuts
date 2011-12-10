@@ -383,9 +383,13 @@ var KsIssueManager = Class.create({
         press: this.assignIssue.bind(this),
         description: "Assign this issue"
       },
-      s: {
+      w: {
         press: this.saveIssue.bind(this),
         description: "Save the issue"
+      },
+      s: {
+        press: this.closeIssue.bind(this),
+        description: "Set Status"
       }
     };
     this.issue_queue = store.get('issue_queue');
@@ -446,6 +450,7 @@ var KsIssueManager = Class.create({
   editIssue: function(event) {
     this.has_edited = true;
     showAndScrollTo("update", "notes");
+    window.location.hash = "notes";
     Event.stop(event);
   },
 
@@ -453,14 +458,23 @@ var KsIssueManager = Class.create({
     if (!this.has_edited) {
       this.editIssue(event);
     }
+    window.location.hash = "issue_assigned_to_id";
     $('issue_assigned_to_id').focus();
   },
-  
+
   saveIssue: function(event) {
     if (!this.has_edited) {
       this.editIssue(event);
     }
     $('issue-form').submit();
+  },
+
+  setStatus: function(event) {
+    if (!this.has_edited) {
+      this.editIssue(event);
+    }
+    window.location.hash = "issue_status_id";
+    $('issue_status_id').focus();
   },
 
   inQueue: function() {
@@ -517,15 +531,15 @@ var KsMoveManager = Class.create({
       }
     };
   },
-  
+
   changeProject: function() {
     $('new_project_id').focus();
   },
-  
+
   assignIssues: function() {
     $('assigned_to_id').focus();
   },
-  
+
   saveForm: function() {
     $('move_form').submit();
   }
