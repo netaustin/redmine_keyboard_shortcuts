@@ -388,7 +388,7 @@ var KsIssueManager = Class.create({
         description: "Save the issue"
       },
       s: {
-        press: this.closeIssue.bind(this),
+        press: this.setStatus.bind(this),
         description: "Set Status"
       }
     };
