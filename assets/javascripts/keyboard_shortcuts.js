@@ -118,8 +118,8 @@ var KsGlobalManager = Class.create({
     var selector = new Element('select', {id: 'project-selector'});
     selector.insert(new Element('option', {value: ''}).update('Choose a project...'));
     ks_projects.each(function(project) {
-      var option = new Element('option', {value: project.identifier});
-      option.update(project.name);
+      var option = new Element('option', {value: project.project.identifier});
+      option.update(project.project.name);
       selector.insert(option);
     });
     dialog.body.insert(form.insert(selector).insert(new Element('input', {type: 'submit', value: 'Go'})));
@@ -201,10 +201,6 @@ var KsListManager = Class.create({
       X: {
         press: this.selectOrUnselectAll.bind(this),
         description: "Toggle checkboxes for all issues in current view off or on"
-      },
-      m: {
-        press: this.move.bind(this),
-        description: "Move all currently selected issues"
       },
       e: {
         press: this.edit.bind(this),
