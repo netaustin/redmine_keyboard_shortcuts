@@ -1,31 +1,74 @@
-var ks_dispatcher, store;
+/* Simple JavaScript Inheritance
+ * By John Resig http://ejohn.org/
+ * MIT Licensed.
+ */
+(function(){
+  var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+  this.Class = function(){};
+  Class.extend = function(prop) {
+    var _super = this.prototype;
+    initializing = true;
+    var prototype = new this();
+    initializing = false;
+    for (var name in prop) {
+      prototype[name] = typeof prop[name] == "function" &&
+        typeof _super[name] == "function" && fnTest.test(prop[name]) ?
+        (function(name, fn){
+          return function() {
+            var tmp = this._super;
+            this._super = _super[name];
+            var ret = fn.apply(this, arguments);        
+            this._super = tmp;
+            return ret;
+          };
+        })(name, prop[name]) :
+        prop[name];
+    }
+    function Class() {
+      if ( !initializing && this.init )
+        this.init.apply(this, arguments);
+    }
+    Class.prototype = prototype;
+    Class.prototype.constructor = Class;
+    Class.extend = arguments.callee;
+   
+    return Class;
+  };
+})();
 
-document.observe("dom:loaded", function() {
-  store = new CookieJar({expires: 86400, path: '/'});
+var ks_dispatcher, store;
+$.cookie.json = true;
+
+$(document).ready(function() {
   ks_dispatcher = new KsDispatcher();
 });
 
-var KsDispatcher = Class.create({
+var KsDispatcher = Class.extend({
 
-  initialize: function() {
+  init: function() {
     this.ks_managers = []
     this.dialog = null;
-    if ($$('table.list').length == 1) {
+    if ($('table.list').length == 1) {
       this.ks_managers.push(new KsListManager());
     }
-    else if ($$('body.controller-issues.action-show').length == 1) {
+    else if ($('body.controller-issues.action-show').length == 1) {
       this.ks_managers.push(new KsIssueManager());
     }
-    else if ($$('body.controller-issue_moves.action-new').length == 1) {
-      this.ks_managers.push(new KsMoveManager());
+    else if ($('body.controller-issues.action-bulk_edit').length == 1) {
+      this.ks_managers.push(new KsEditManager());
     }
 
     this.ks_managers.push(new KsGlobalManager());
 
-    document.observe('keypress', this.keypress.bindAsEventListener(this));
+    var self = this;
+    $(document).on('keypress', function(e) {
+      self.keypress(e);
+    });
 
     // special case for escape key
-    document.observe('keydown', this.keydown.bindAsEventListener(this));
+    $(document).on('keydown', function(e) {
+      self.keydown(e);
+    });
   },
 
   keydown: function(event) {
@@ -50,8 +93,8 @@ var KsDispatcher = Class.create({
     var key_pressed = getDisplayKey(event);
 
     // dispatch to shortcut manager
-    this.ks_managers.each(function(ksm) {
-      if ('keys' in ksm && key_pressed in ksm.keys) {
+    $.each(this.ks_managers, function(i, ksm) {
+      if ('keys' in ksm && key_pressed in ksm.keys && ksm.keys[key_pressed]) {
         if (this.dialog) {
           if (!('allowInDialog' in ksm.keys[key_pressed]) || ksm.keys[key_pressed].allowInDialog == false) {
             return;
@@ -85,9 +128,9 @@ var KsDispatcher = Class.create({
 
 });
 
-var KsGlobalManager = Class.create({
+var KsGlobalManager = Class.extend({
 
-  initialize: function() {
+  init: function() {
     this.description = "Global Keyboard Shortcuts";
 
     this.keys = {
@@ -111,43 +154,55 @@ var KsGlobalManager = Class.create({
     };
   },
 
-  changeProject: function() {
+  changeProject: function(e) {
+    e.preventDefault();
     var dialog = ks_dispatcher.createDialog();
-    dialog.title.update('Navigate to a different project');
-    var form = new Element('form', {id: 'project-selector-form'});
-    var selector = new Element('select', {id: 'project-selector'});
-    selector.insert(new Element('option', {value: ''}).update('Choose a project...'));
-    ks_projects.each(function(project) {
-      var option = new Element('option', {value: project.project.identifier});
-      option.update(project.project.name);
-      selector.insert(option);
+    dialog.title.html('Navigate to a different project');
+    form = '<p>Choose a project:</p>';
+    form += '<input type="text" id="project-selector" size="40" />';
+    dialog.body.append(form);
+    var self = this;
+    $('#project-selector').autocomplete({
+      source: function(req, resp) {
+        var matches = [];
+        $.each(ks_projects, function(i, project) {
+          if (project.project.identifier.indexOf(req.term) !== -1 || project.project.name.indexOf(req.term) !== -1) {
+            matches.push({label: project.project.name, value: project.project.identifier});
+          }
+        });
+        resp(matches);
+      },
+      close: function() {
+        self.selectorChange();
+      }
     });
-    dialog.body.insert(form.insert(selector).insert(new Element('input', {type: 'submit', value: 'Go'})));
-    $('project-selector').focus();
-    $('project-selector-form').observe('submit', this.projectSelectorChanged.bind(this));
-    // $('project-selector').observe('change', this.projectSelectorChanged.bind(this));
+    $('#project-selector').focus();
+    $('#project-selector').on('keyup', function(e) {
+      if (e.which != 40 && e.which != 38 && e.which != 13) self.selectorChange();
+    });
     dialog.fixPosition();
   },
 
-  projectSelectorChanged: function(event) {
-    Event.stop(event);
-    var val = $('project-selector').getValue();
-    if (val != '') {
-      ks_dispatcher.go('projects/' + val);
-    }
+  selectorChange: function() {
+    var choice = $('#project-selector').val();
+    $.each(ks_projects, function(i, project) {
+      if (project.project.identifier == choice) {
+        ks_dispatcher.go('projects/' + choice);
+      }
+    });
   },
 
   newIssue: function() {
-    var new_issue_link = $$('.new-issue');
+    var new_issue_link = $('.new-issue');
     if (new_issue_link.length > 0) {
-      ks_dispatcher.go(new_issue_link[0].href);
+      ks_dispatcher.go(new_issue_link.attr('href'));
     }
   },
 
   viewAllIssues: function() {
-    var issues_link = $$('.issues');
+    var issues_link = $('.issues');
     if (issues_link.length > 0) {
-      ks_dispatcher.go(issues_link[0].href);
+      ks_dispatcher.go(issues_link.attr('href'));
     }
   },
 
@@ -157,28 +212,25 @@ var KsGlobalManager = Class.create({
       return;
     }
     var dialog = ks_dispatcher.createDialog();
-    dialog.title.update('Keyboard Shortcuts');
-    ks_dispatcher.ks_managers.each(function(ksm) {
-      dialog.body.insert(new Element('h4').update(ksm.description));
-      var table = new Element('table', {class: 'ks-help'});
+    dialog.title.html('Keyboard Shortcuts');
+    $.each(ks_dispatcher.ks_managers, function(i, ksm) {
+      dialog.body.append($('<h4></h4>').html(ksm.description));
+      var help = '<table class="ks-help">';
       for (var j in ksm.keys) {
-        var tr = new Element('tr');
-        var key_td = new Element('td', {class: 'key'}).update(j);
-        var value_td = new Element('td').update(ksm.keys[j].description);
-        tr.insert(key_td).insert(value_td);
-        table.insert(tr);
+        help += '<tr><td class="key">' + j + '</td><td>' + ksm.keys[j].description + '</td></tr>';
       }
-      dialog.body.insert(table);
+      help += '</table>';
+      dialog.body.append(help);
     });
     dialog.fixPosition();
   }
 
 });
 
-var KsListManager = Class.create({
+var KsListManager = Class.extend({
 
-  initialize: function() {
-    this.issues = $$('.list.issues tr.issue');
+  init: function() {
+    this.issues = $('.list.issues tr.issue');
     this.current_selected = 0;
     this.chosen = [];
     this.selectIssue(0);
@@ -212,7 +264,7 @@ var KsListManager = Class.create({
       }
     };
 
-    if (checked_issues = store.get('checked_issues')) {
+    if (checked_issues = $.cookie('checked_issues')) {
       this.setSelectedIds(checked_issues);
     }
 
@@ -222,28 +274,29 @@ var KsListManager = Class.create({
 
   selectIssue: function(idx) {
     if (this.current_selected != idx) {
-      this.issues[this.current_selected].removeClassName('ks-selected');
+      $(this.issues[this.current_selected]).removeClass('ks-selected');
     }
-    this.issues[idx].addClassName('ks-selected');
+    $(this.issues[idx]).addClass('ks-selected');
     this.current_selected = idx;
   },
 
   selectIssueByRedmineId: function(rmid) {
-    if ($('issue' + rmid)) {
-      $('issue-' + rmid).down('.checkbox input').click();
+    if ($('#issue' + rmid)) {
+      $('#issue-' + rmid).find('.checkbox input').click();
     }
   },
 
   setSelectedIds: function(ids) {
-    ids.each(function(id) {
-      this.selectIssueByRedmineId(id);
-    }, this);
+    var self = this;
+    $.each(ids, function(i, id) {
+      self.selectIssueByRedmineId(id);
+    });
   },
 
   selectOrUnselectAll: function() {
     var is_checked = false;
     this.issues.each(function(el) {
-      if (el.down('.checkbox input').checked) {
+      if ($(this).find('.checkbox input').is(':checked')) {
         is_checked = true;
         return false;
       }
@@ -260,8 +313,8 @@ var KsListManager = Class.create({
   toggleAll: function(state) {
     var check_state = (state == 'off');
     this.issues.each(function(el) {
-      var checkbox = el.down('.checkbox input');
-      if (checkbox.checked == check_state) {
+      var checkbox = $(this).find('.checkbox input');
+      if ($(checkbox).is(':checked') == check_state) {
         checkbox.click();
       }
     });
@@ -280,36 +333,37 @@ var KsListManager = Class.create({
   },
 
   clickCurrentIssue: function() {
-    this.issues[this.current_selected].down('.checkbox input').click();
-    store.put('checked_issues', this.getChosenIds());
+    $(this.issues[this.current_selected]).find('.checkbox input').click();
+    $.cookie('checked_issues', this.getChosenIds(), {path: '/'});
   },
 
   getChosenIds: function() {
     var ids = [];
-    this.issues.each(function(el) {
-      var checkbox = el.down('.checkbox input');
-      if (checkbox.checked) {
-        ids.push(checkbox.getValue());
+    this.issues.each(function() {
+      var checkbox = $(this).find('.checkbox input');
+      if ($(checkbox).is(':checked')) {
+        ids.push($(checkbox).val());
       }
     });
     return ids;
   },
 
   getTitleById: function(id) {
-    return $('issue-' + id).down('td.subject a').innerHTML;
+    return $('#issue-' + id).find('td.subject a').text();
   },
 
   rememberIssues: function(ids) {
     var issues = [];
-    ids.each(function(id, index) {
-      issues.push({id: id, title: this.getTitleById(id)});
-    }, this);
-    store.put('issue_queue', issues);
+    var self = this;
+    $.each(ids, function(i, curid) {
+      issues.push({id: curid, title: self.getTitleById(curid)});
+    });
+    $.cookie('issue_queue', issues, {path: '/'});
   },
 
   getAllIds: function() {
     var ids = [];
-    this.issues.each(function(el) {
+    $.each(this.issues, function(i, el) {
       ids.push(el.id.replace('issue-', ''));
     });
     return ids;
@@ -317,7 +371,7 @@ var KsListManager = Class.create({
 
   getIdString: function() {
     var str = [];
-    this.getChosenIds().each(function(id) {
+    $.each(this.getChosenIds(), function(i, id) {
       str.push('ids[]=' + id);
     });
     return str.join('&');
@@ -346,9 +400,9 @@ var KsListManager = Class.create({
 
 });
 
-var KsIssueManager = Class.create({
+var KsIssueManager = Class.extend({
 
-  initialize: function() {
+  init: function() {
     this.description = "Keyboard Shortcuts for Issue View";
     this.keys = {
       j: {
@@ -388,24 +442,27 @@ var KsIssueManager = Class.create({
         description: "Set Status"
       }
     };
-    this.issue_queue = store.get('issue_queue');
+    this.issue_queue = $.cookie('issue_queue');
     this.issue_id = ks_issue_id;
     this.previous = this.next = null;
     if (this.issue_queue) {
-      this.issue_queue.each(function(issue, i) {
-        if (issue.id == this.issue_id) {
+      var self = this;
+      $.each(this.issue_queue, function(i, issue) {
+        if (issue.id == self.issue_id) {
           if (i > 0) {
-            this.previous = this.issue_queue[i - 1];
+            self.previous = self.issue_queue[i - 1];
           }
-          if (i < this.issue_queue.length - 1) {
-            this.next = this.issue_queue[i + 1];
+          if (i < self.issue_queue.length - 1) {
+            self.next = self.issue_queue[i + 1];
           }
         }
-      }, this);
+      });
     }
     else {
+      this.issue_queue = [];
       this.keys.j = null;
       this.keys.k = null;
+      this.keys.l = null;
     }
     this.has_edited = false;
     this.issue_list = [];
@@ -431,15 +488,15 @@ var KsIssueManager = Class.create({
 
   selectIssue: function(idx) {
     if (this.current_selected != idx) {
-      this.issue_list[this.current_selected].removeClassName('selected');
+      $(this.issue_list[this.current_selected]).removeClass('selected');
     }
-    this.issue_list[idx].addClassName('selected');
+    $(this.issue_list[idx]).addClass('selected');
     this.current_selected = idx;
   },
 
   openIssue: function() {
     if (this.inQueue()) {
-      ks_dispatcher.go(this.issue_list[this.current_selected].down('a').readAttribute('href'));
+      ks_dispatcher.go($(this.issue_list[this.current_selected]).find('a').attr('href'));
     }
   },
 
@@ -447,7 +504,7 @@ var KsIssueManager = Class.create({
     this.has_edited = true;
     showAndScrollTo("update", "notes");
     window.location.hash = "notes";
-    Event.stop(event);
+    event.preventDefault();
   },
 
   assignIssue: function(event) {
@@ -455,14 +512,14 @@ var KsIssueManager = Class.create({
       this.editIssue(event);
     }
     window.location.hash = "issue_assigned_to_id";
-    $('issue_assigned_to_id').focus();
+    $('#issue_assigned_to_id').focus();
   },
 
   saveIssue: function(event) {
     if (!this.has_edited) {
       this.editIssue(event);
     }
-    $('issue-form').submit();
+    $('#issue-form').submit();
   },
 
   setStatus: function(event) {
@@ -470,47 +527,46 @@ var KsIssueManager = Class.create({
       this.editIssue(event);
     }
     window.location.hash = "issue_status_id";
-    $('issue_status_id').focus();
+    $('#issue_status_id').focus();
   },
 
   inQueue: function() {
-    return ($$('.ks-list').length > 0);
+    return ($('.ks-list').length > 0);
   },
 
   viewQueue: function() {
-    if (ks_dispatcher.dialog && $$('.ks-list').length > 0) {
+    if (ks_dispatcher.dialog && $('.ks-list').length > 0) {
       ks_dispatcher.closeDialog();
       return;
     }
     var dialog = ks_dispatcher.createDialog();
-    dialog.title.update('Issue Queue');
-    var list = new Element('ul', {class: 'ks-list'});
+    dialog.title.html('Issue Queue');
+    var list = $('<ul class="ks-list"><ul>');
     var i = 0;
     this.current_selected = 0;
-    this.issue_queue.each(function(issue) {
-      var list_item = new Element('li');
-      var link = new Element('a').writeAttribute('href', '/issues/' + issue.id).update(issue.title);
+    $.each(this.issue_queue, function(i, issue) {
+      var li = $('<li></li>');
       if (this.issue_id == issue.id) {
-        list_item.addClassName('selected');
+        li.addClass('selected');
         this.current_selected = i;
       }
-      list_item.update(link);
-      list.insert(list_item);
+      li.html('<a href="' + '/issues/' + issue.id + '">' + issue.title + '</a>');
+      list.append(li);
       i++;
-    }, this);
-    var help = "j and k to move up and down, o to open";
-    dialog.body.insert(new Element('p', {class: 'ks-list-description'}).update(help));
-    dialog.body.insert(list);
+    });
+    var help = "<p>j and k to move up and down, o to open</p>";
+    dialog.body.append(help);
+    dialog.body.append(list);
     dialog.fixPosition();
-    this.issue_list = $$('.ks-list li');
+    this.issue_list = $('.ks-list li');
   }
 
 });
 
-var KsMoveManager = Class.create({
+var KsEditManager = Class.extend({
 
-  initialize: function() {
-    this.description = "Keyboard Shortcuts for Bulk Issue Mover";
+  init: function() {
+    this.description = "Keyboard Shortcuts for Bulk Issue Editor";
     this.keys = {
       m: {
         press: this.changeProject.bind(this),
@@ -529,54 +585,49 @@ var KsMoveManager = Class.create({
   },
 
   changeProject: function() {
-    $('new_project_id').focus();
+    $('#issue_project_id').focus();
   },
 
   assignIssues: function() {
-    $('assigned_to_id').focus();
+    $('#issue_assigned_to_id').focus();
   },
 
   saveForm: function() {
-    $('move_form').submit();
+    $('#bulk_edit_form').submit();
   }
 });
 
-var KsDialog = Class.create({
+var KsDialog = Class.extend({
 
-  initialize: function() {
-    var dialog = new Element('div', {id: 'dialog-wrapper'}).insert(
-      new Element('div', {id: 'dialog'}).insert(
-        new Element('h3', {id: 'dialog-title'})
-      ).insert(
-        new Element('div', {id: 'dialog-body'})
-      )
-    );
-    $$('body')[0].insert({top: dialog});
+  init: function() {
+    var dialog = '<div id="dialog-wrapper"><div id="dialog"><h3 id="dialog-title"></h3><div id="dialog-body"></div></div></div>';
+    $('body').prepend(dialog);
 
-    this.dialog = $('dialog');
-    this.title = $('dialog-title');
-    this.body = $('dialog-body');
+    this.dialog = $('#dialog');
+    this.title = $('#dialog-title');
+    this.body = $('#dialog-body');
 
-    $('dialog-wrapper').observe('click', function(event) {
+    $('dialog-wrapper').on('click', function(event) {
       if (event.target.id == 'dialog-wrapper') {
         ks_dispatcher.closeDialog();
       }
     });
     this.fixPosition();
-    document.observe('scroll', this.fixPosition.bind(this));
-    Event.observe(window, 'resize', this.fixPosition.bind(this));
+    var self = this;
+    $(document).on('scroll', function() { self.fixPosition(); });
+    $(window).on('resize', function() { self.fixPosition(); });
   },
 
   fixPosition: function() {
-    var window_height = document.viewport.getHeight();
-    var margin = (window_height - this.dialog.getHeight()) / 2;
-    this.dialog.setStyle({
-      'margin-top': Math.round(document.viewport.getScrollOffsets().top + margin) + 'px',
+    var window_height = $(window).height();
+    var margin = $(window).scrollTop() + (window_height - this.dialog.height()) / 2;
+    this.dialog.css({
+      'margin-top': margin + 'px',
     });
   },
 
   close: function() {
-    $('dialog-wrapper').remove();
+    $('#dialog-wrapper').remove();
   }
 
 });
