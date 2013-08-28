@@ -48,14 +48,14 @@ var KsDispatcher = Class.extend({
   init: function() {
     this.ks_managers = []
     this.dialog = null;
-    if ($('table.list').length == 1) {
-      this.ks_managers.push(new KsListManager());
-    }
-    else if ($('body.controller-issues.action-show').length == 1) {
+    if ($('body.controller-issues.action-show').length == 1) {
       this.ks_managers.push(new KsIssueManager());
     }
     else if ($('body.controller-issues.action-bulk_edit').length == 1) {
       this.ks_managers.push(new KsEditManager());
+    }
+    else if ($('table.list').length == 1) {
+      this.ks_managers.push(new KsListManager());
     }
 
     this.ks_managers.push(new KsGlobalManager());
