@@ -23,7 +23,7 @@
 }
 
 #dialog {
-  width: 300px;
+  width: 400px;
   margin: 200px auto;
   background-color: #fff;
   border: 3px solid #777;
@@ -32,7 +32,11 @@
 
 #dialog-body {
   padding: 5px 15px;
-  overflow: scroll;
+  overflow: auto;
+}
+
+#dialog input {
+  width: 300px;
 }
 
 #dialog h3 {

@@ -57,6 +57,12 @@ var KsDispatcher = Class.extend({
     else if ($('body.controller-issues.action-bulk_edit').length == 1) {
       this.ks_managers.push(new KsEditManager());
     }
+    else if ($('body.controller-wiki.action-show').length == 1){
+      this.ks_managers.push(new KsWikiManager());
+    }
+    else if ($('body.controller-wiki.action-edit').length == 1){
+      this.ks_managers.push(new KsWikiEditManager());
+    }
 
     this.ks_managers.push(new KsGlobalManager());
 
@@ -146,6 +152,10 @@ var KsGlobalManager = Class.extend({
         press: this.viewAllIssues.bind(this),
         description: "View all issues for current project"
       },
+      u: {
+        press: this.viewWiki.bind(this),
+        description: "View wiki of current project"
+      },
       h: {
         press: this.viewHelp.bind(this),
         description: "See all available shortcuts",
@@ -206,8 +216,15 @@ var KsGlobalManager = Class.extend({
     }
   },
 
+  viewWiki: function() {
+    var wiki_link = $('.wiki');
+    if (wiki_link.length > 0) {
+      ks_dispatcher.go(wiki_link.attr('href'));
+    }
+  },
+
   viewHelp: function() {
-    if (ks_dispatcher.dialog && $$('.ks-help').length > 0) {
+    if (ks_dispatcher.dialog && $('.ks-help').length > 0) {
       ks_dispatcher.closeDialog();
       return;
     }
@@ -594,6 +611,42 @@ var KsEditManager = Class.extend({
 
   saveForm: function() {
     $('#bulk_edit_form').submit();
+  }
+});
+
+
+var KsWikiManager = Class.extend({
+
+  init: function() {
+    this.description = "Keyboard Shortcuts for Wiki";
+    this.keys = {
+      e: {
+        press: this.editPage.bind(this),
+        description: "Edit the wikipage"
+      }
+    };
+  },
+
+  editPage: function() {
+    var url = $('div.contextual a.icon-edit').attr("href");
+    ks_dispatcher.go(url);
+  }
+});
+
+var KsWikiEditManager = Class.extend({
+
+  init: function() {
+    this.description = "Keyboard Shortcuts for Wiki Editor";
+    this.keys = {
+      w: {
+        press: this.saveForm.bind(this),
+        description: "Save the page"
+      }
+    };
+  },
+
+  saveForm: function() {
+    $('#wiki_form').submit();
   }
 });
 
