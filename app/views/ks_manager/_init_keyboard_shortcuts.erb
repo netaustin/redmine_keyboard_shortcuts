@@ -2,6 +2,7 @@
 <%= javascript_include_tag('jquery.cookie.js', :plugin => 'redmine_keyboard_shortcuts') %>
 <%= javascript_include_tag('keyboard_shortcuts', :plugin => 'redmine_keyboard_shortcuts') %>
 <script type="text/javascript">
+  var ks_relative_url_root = "<%= Redmine::Utils::relative_url_root %>";
   var ks_projects = <%= Project.visible.find(:all, :select => 'name, identifier', :order => 'lft').to_json.html_safe %>;
   <% if (params[:controller] == 'issues' && params[:action] == 'show') then %>
     var ks_issue_id = <%= @issue.id %>;

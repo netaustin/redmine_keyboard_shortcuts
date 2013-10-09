@@ -121,7 +121,7 @@ var KsDispatcher = Class.extend({
 
   go: function(url) {
     if (!url.match(/^http/) && !url.match(/^\//)) {
-      url = '/' + url;
+      url = ks_relative_url_root + url;
     }
     document.location.href = url;
   }
@@ -473,7 +473,7 @@ var KsIssueManager = Class.extend({
       this.selectIssue(this.current_selected + 1);
     }
     else if(this.next) {
-      ks_dispatcher.go('/issues/' + this.next.id);
+      ks_dispatcher.go('issues/' + this.next.id);
     }
   },
 
@@ -482,7 +482,7 @@ var KsIssueManager = Class.extend({
       this.selectIssue(this.current_selected - 1);
     }
     else if(this.previous) {
-      ks_dispatcher.go('/issues/' + this.previous.id);
+      ks_dispatcher.go('issues/' + this.previous.id);
     }
   },
 
