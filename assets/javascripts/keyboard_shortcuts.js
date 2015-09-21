@@ -166,8 +166,8 @@ var KsGlobalManager = Class.extend({
       source: function(req, resp) {
         var matches = [];
         $.each(ks_projects, function(i, project) {
-          if (project.project.identifier.indexOf(req.term) !== -1 || project.project.name.indexOf(req.term) !== -1) {
-            matches.push({label: project.project.name, value: project.project.identifier});
+          if (project.identifier.indexOf(req.term) !== -1 || project.name.indexOf(req.term) !== -1) {
+            matches.push({label: project.name, value: project.identifier});
           }
         });
         resp(matches);
@@ -186,7 +186,7 @@ var KsGlobalManager = Class.extend({
   selectorChange: function() {
     var choice = $('#project-selector').val();
     $.each(ks_projects, function(i, project) {
-      if (project.project.identifier == choice) {
+      if (project.identifier == choice) {
         ks_dispatcher.go('projects/' + choice);
       }
     });
