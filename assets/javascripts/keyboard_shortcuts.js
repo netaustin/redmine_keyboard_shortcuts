@@ -48,14 +48,14 @@ var KsDispatcher = Class.extend({
   init: function() {
     this.ks_managers = []
     this.dialog = null;
-    if ($('table.list').length == 1) {
-      this.ks_managers.push(new KsListManager());
-    }
-    else if ($('body.controller-issues.action-show').length == 1) {
+    if ($('body.controller-issues.action-show').length == 1) {
       this.ks_managers.push(new KsIssueManager());
     }
     else if ($('body.controller-issues.action-bulk_edit').length == 1) {
       this.ks_managers.push(new KsEditManager());
+    }
+    else if ($('table.list').length == 1) {
+      this.ks_managers.push(new KsListManager());
     }
 
     this.ks_managers.push(new KsGlobalManager());
@@ -207,7 +207,7 @@ var KsGlobalManager = Class.extend({
   },
 
   viewHelp: function() {
-    if (ks_dispatcher.dialog && $$('.ks-help').length > 0) {
+    if (ks_dispatcher.dialog && $('.ks-help').length > 0) {
       ks_dispatcher.closeDialog();
       return;
     }
@@ -217,7 +217,9 @@ var KsGlobalManager = Class.extend({
       dialog.body.append($('<h4></h4>').html(ksm.description));
       var help = '<table class="ks-help">';
       for (var j in ksm.keys) {
-        help += '<tr><td class="key">' + j + '</td><td>' + ksm.keys[j].description + '</td></tr>';
+        if (ksm.keys[j]) {
+          help += '<tr><td class="key">' + j + '</td><td>' + ksm.keys[j].description + '</td></tr>';
+        }
       }
       help += '</table>';
       dialog.body.append(help);
