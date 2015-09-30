@@ -4,6 +4,6 @@
 <script type="text/javascript">
   var ks_projects = <%= Project.visible.select('name, identifier').order('lft').all().to_json.html_safe %>;
   <% if (params[:controller] == 'issues' && params[:action] == 'show') then %>
-    var ks_issue_id = <%= @issue.id %>;
+    var ks_issue_id = <%= ((@issue.nil? or (@issue.id and @issue.id.blank?)) ? 0 : @issue.id) %>;
   <% end %>
 </script>
