@@ -32,7 +32,7 @@
 
 #dialog-body {
   padding: 5px 15px;
-  overflow: scroll;
+  overflow: visible;
 }
 
 #dialog h3 {
@@ -65,6 +65,7 @@
   list-style-type: none;
   margin: 0;
   padding: 0;
+  z-index: 1001;
 }
 
 #dialog ul.ks-list li {
