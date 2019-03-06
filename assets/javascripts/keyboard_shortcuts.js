@@ -150,6 +150,10 @@ var KsGlobalManager = Class.extend({
         press: this.viewHelp.bind(this),
         description: "See all available shortcuts",
         allowInDialog: true
+      },
+      /: {
+        press: this.searchIssues.bind(this),
+        description: "Search issues across all projects",
       }
     };
   },
