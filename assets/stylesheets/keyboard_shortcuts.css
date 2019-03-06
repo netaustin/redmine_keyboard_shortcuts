@@ -84,3 +84,7 @@
 .ui-autocomplete {
   z-index: 1001;
 }
+
+.ui-autocomplete-input {
+  width: 90%;
+}
