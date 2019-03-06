@@ -158,6 +158,28 @@ var KsGlobalManager = Class.extend({
     };
   },
 
+  searchIssues: function(e) {
+    e.preventDefault();
+    var dialog = ks_dispatcher.createDialog();
+    dialog.title.html('Search issues across all projects');
+    form = '<p>Type your search</p>';
+    form += '<input type="text" id="search-box" size="40" />';
+    dialog.body.append(form);
+    var self = this;
+    $('#search-box').autocomplete({
+      source: function(req, resp) {
+        var matches = [];
+        $.each(ks_projects, function(i, project) {
+          matches.push({label: project.name, value: project.identifier});
+        }
+        resp(matches)
+      },
+      close: function() {
+        self.selectorChange();
+      }
+    })
+  }
+
   changeProject: function(e) {
     e.preventDefault();
     var dialog = ks_dispatcher.createDialog();
