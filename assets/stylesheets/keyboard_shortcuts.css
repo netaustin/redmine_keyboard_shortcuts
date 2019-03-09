@@ -32,7 +32,7 @@
 
 #dialog-body {
   padding: 5px 15px;
-  overflow: scroll;
+  overflow: visible;
 }
 
 #dialog h3 {
@@ -79,4 +79,12 @@
 
 #dialog ul.ks-list li a.current {
   color: #000;
+}
+
+.ui-autocomplete {
+  z-index: 1001;
+}
+
+.ui-autocomplete-input {
+  width: 90%;
 }
